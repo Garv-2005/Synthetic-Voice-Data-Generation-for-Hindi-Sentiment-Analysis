@@ -35,6 +35,10 @@ Dataset/SER HINDI SESSION 1/
 *.gif
 
 # Research pipeline output files
+# ML model outputs
+research_pipeline/results/**/**/*.h5
+research_pipeline/results/**/*.h5
+*.h5
 
 # Logs
 *.log
