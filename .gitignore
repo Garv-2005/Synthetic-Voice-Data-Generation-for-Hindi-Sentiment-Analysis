@@ -1,0 +1,40 @@
+# Ignoring common Python build/distribution files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+build/
+dist/
+eggs/
+*.egg-info/
+.env
+.venv
+env/
+venv/
+*.json
+
+# Ignoring common OS-specific files
+.DS_Store
+.Trashes
+Thumbs.db
+ehthumbs.db
+.directory
+
+# Ignoring IDE-specific files
+.idea/
+.vscode/
+*.swp
+*.bak
+*.swo
+
+# Project-specific ignores based on the folder structure provided
+# Dataset related files
+Dataset/my Dataset/
+Dataset/SER HINDI SESSION 1/
+*.gif
+
+# Research pipeline output files
+
+# Logs
+*.log
