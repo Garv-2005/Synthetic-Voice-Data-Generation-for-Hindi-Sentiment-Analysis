@@ -272,14 +272,15 @@ The pipeline automatically detects and uses GPU if available. No additional conf
 3. **Fine-tune Best Model**: Further optimize hyperparameters
 4. **Ensemble Methods**: Combine predictions from multiple models
 
-### Future Enhancements:
+### Synthetic Data Augmentation (Phase 2):
 
-1. **Data Augmentation**: Speed, pitch, noise augmentation
-2. **SpecAugment**: Time/frequency masking
-3. **Mixup**: Feature-level interpolation
-4. **VAE Generation**: Generative model-based synthesis
+Three approaches are implemented under `augmentation/` (see **AUGMENTATION_GUIDE.md**):
 
-Each method will have its own subdirectory in `research_pipeline/` with similar structure.
+1. **Classical** (`augmentation/classical/`): Time stretch, pitch shift, noise, volume on audio → same Mel extraction and 6-model evaluation.
+2. **Transformer (MAE)** (`augmentation/transformer/`): Masked autoencoder on spectrograms; generate new spectrograms and evaluate with same models.
+3. **VAE** (`augmentation/vae_gan/`): VAE on spectrograms; sample and decode to new spectrograms; same evaluation.
+
+Results for each approach are under `results/augmentation/<approach>/` so you can compare baseline vs augmentation using the same metrics.
 
 ## 📚 Research Paper Integration
 
@@ -305,6 +306,7 @@ For issues or questions, please check:
 
 - **Baseline Experiments**: See `baseline/README.md`
 - **Model Comparison**: See `comparison/README.md`
+- **Synthetic Data Augmentation**: See `AUGMENTATION_GUIDE.md` and `augmentation/README.md`
 - **Quick Start Guide**: See `QUICK_START.md`
 - **Resume Guide**: See `RESUME_GUIDE.md` (How to continue from interruptions)
 - **Dataset Information**: See `../Dataset/README.md`
@@ -348,4 +350,4 @@ See `RESUME_GUIDE.md` for detailed instructions on resuming work.
 - ✅ Resume functionality (skip existing models)
 - ✅ Progress bars for all operations
 
-**Next**: Synthetic data generation modules
+**Augmentation**: Classical, Transformer (MAE), and VAE pipelines in `augmentation/` (see `AUGMENTATION_GUIDE.md`).
