@@ -1,74 +1,123 @@
 """
-Run full classical-augmentation pipeline: extract features (if needed) -> train all 6 models -> comparison.
-Results go to results/augmentation/classical/ for clear segregation.
+Classical Augmentation Pipeline
+Orchestrates both generation and training stages
+Can run both sequentially or run stages independently
 """
 
 import os
 import sys
 from pathlib import Path
 
+# Add paths
 script_dir = Path(__file__).resolve().parent
-base_dir = script_dir.parent.parent  # research_pipeline
+base_dir = script_dir.parent.parent
 sys.path.insert(0, str(base_dir))
 
-from augmentation.classical.extract_classical_augmented_features import extract_classical_augmented_features, main as extract_main
-from comparison.compare_models import compare_all_models
+from augmentation.classical.generate_classical_augmented_data import generate_classical_augmented_data
+from augmentation.classical.train_classical_models import train_classical_models
 
 
 def run_classical_pipeline(
+    stage='both',
     epochs=100,
     batch_size=32,
     skip_existing=False,
     force=False,
 ):
-    data_dir = base_dir / "data"
-    feature_path = data_dir / "classical_augmented_features.npz"
-    results_base = base_dir / "results" / "augmentation" / "classical"
+    """
+    Run classical augmentation pipeline
+    
+    Args:
+        stage: 'generation', 'training', or 'both' (default)
+        epochs: Number of training epochs
+        batch_size: Batch size
+        skip_existing: Skip already-trained models
+        force: Force retrain/regenerate
+    """
+    
+    # From augmentation/classical/ go up 4 levels to Capstone root
+    capstone_root = Path(__file__).resolve().parent.parent.parent.parent
+    data_dir = capstone_root / 'Dataset' / 'my Dataset'
+    output_path = capstone_root / 'research_pipeline' / 'data' / 'classical_augmented_features.npz'
 
-    data_dir.mkdir(parents=True, exist_ok=True)
-    results_base.mkdir(parents=True, exist_ok=True)
+    if stage in ('generation', 'both'):
+        print("\n" + "=" * 80)
+        print("GENERATION STAGE: Classical Augmentation")
+        print("=" * 80)
+        
+        if output_path.exists() and not force:
+            print(f"\nAugmented features already exist: {output_path}")
+            print("Use --force to regenerate")
+        else:
+            generate_classical_augmented_data(
+                data_dir=data_dir,
+                output_path=output_path,
+                random_state=42,
+            )
 
-    print("=" * 80)
-    print("CLASSICAL AUGMENTATION PIPELINE")
-    print("=" * 80)
-
-    if not feature_path.exists():
-        print("\n[STEP 1/2] Extracting classical-augmented features...")
-        extract_main()
-    else:
-        print("\n[STEP 1/2] Using existing classical-augmented features:")
-        print(f"  {feature_path}")
-
-    print("\n[STEP 2/2] Training and comparing all models (same as baseline)...")
-    compare_all_models(
-        data_path=str(feature_path),
-        results_base_dir=str(results_base),
-        epochs=epochs,
-        batch_size=batch_size,
-        random_seed=42,
-        skip_existing=skip_existing,
-        force_retrain=force,
-    )
+    if stage in ('training', 'both'):
+        print("\n" + "=" * 80)
+        print("TRAINING STAGE: Classical Augmentation Model Comparison")
+        print("=" * 80)
+        
+        train_classical_models(
+            epochs=epochs,
+            batch_size=batch_size,
+            skip_existing=skip_existing,
+            force=force,
+        )
 
     print("\n" + "=" * 80)
     print("CLASSICAL PIPELINE COMPLETE")
     print("=" * 80)
-    print(f"Results: {results_base}")
-    print(f"  Per-model: {results_base}/cnn/, lstm/, cnn_lstm/, resnet/, transformer/, svm/")
-    print(f"  Comparison: {results_base}/comparison/")
 
 
-if __name__ == "__main__":
+def main():
+    """Command-line entry point"""
     import argparse
-    p = argparse.ArgumentParser(description="Run classical augmentation pipeline")
-    p.add_argument("--epochs", type=int, default=100)
-    p.add_argument("--batch_size", type=int, default=32)
-    p.add_argument("--skip_existing", action="store_true", help="Skip already-trained models")
-    p.add_argument("--force", action="store_true", help="Force retrain all models")
-    args = p.parse_args()
+    
+    parser = argparse.ArgumentParser(
+        description='Classical Augmentation Pipeline (Generation + Training)'
+    )
+    parser.add_argument(
+        '--stage',
+        choices=['generation', 'training', 'both'],
+        default='both',
+        help='Which stage to run (default: both)'
+    )
+    parser.add_argument(
+        '--epochs',
+        type=int,
+        default=100,
+        help='Number of training epochs'
+    )
+    parser.add_argument(
+        '--batch_size',
+        type=int,
+        default=32,
+        help='Batch size'
+    )
+    parser.add_argument(
+        '--skip_existing',
+        action='store_true',
+        help='Skip already-trained models'
+    )
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Force regenerate/retrain'
+    )
+    
+    args = parser.parse_args()
+    
     run_classical_pipeline(
+        stage=args.stage,
         epochs=args.epochs,
         batch_size=args.batch_size,
         skip_existing=args.skip_existing,
         force=args.force,
     )
+
+
+if __name__ == '__main__':
+    main()

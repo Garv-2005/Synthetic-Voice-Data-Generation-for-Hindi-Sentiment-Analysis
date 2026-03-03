@@ -45,12 +45,6 @@ except ImportError:
 
 # Add paths
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils.visualization import (
-    plot_training_history,
-    plot_comprehensive_training_history,
-    plot_confusion_matrix,
-    plot_per_class_metrics
-)
 
 
 def calculate_metrics(y_true, y_pred, emotion_map):
@@ -368,6 +362,15 @@ def train_model(model_class, data_path, results_dir, model_name,
     
     # Generate visualizations
     print("\n[6/7] Generating visualizations...")
+    
+    # Lazy import visualization functions
+    from utils.visualization import (
+        plot_training_history,
+        plot_comprehensive_training_history,
+        plot_confusion_matrix,
+        plot_per_class_metrics
+    )
+    
     viz_tasks = []
     
     # Standard training history (skip for SVM as it doesn't have training history)

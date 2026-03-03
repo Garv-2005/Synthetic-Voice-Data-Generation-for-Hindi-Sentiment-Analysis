@@ -14,11 +14,6 @@ from tqdm import tqdm
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models import CNNModel, LSTMModel, CNNLSTMModel, ResNetModel, TransformerModel, SVMModel
 from comparison.train_model import train_model
-from utils.visualization import (
-    plot_model_comparison,
-    plot_training_curves_comparison,
-    plot_metrics_radar_chart
-)
 
 
 def compare_all_models(data_path, results_base_dir='../results',
@@ -145,6 +140,13 @@ def compare_all_models(data_path, results_base_dir='../results',
     
     comparison_dir = os.path.join(results_base_dir, 'comparison')
     os.makedirs(comparison_dir, exist_ok=True)
+    
+    # Lazy import visualization functions
+    from utils.visualization import (
+        plot_model_comparison,
+        plot_training_curves_comparison,
+        plot_metrics_radar_chart
+    )
     
     viz_tasks = [
         ('Model comparison charts', lambda: plot_model_comparison(

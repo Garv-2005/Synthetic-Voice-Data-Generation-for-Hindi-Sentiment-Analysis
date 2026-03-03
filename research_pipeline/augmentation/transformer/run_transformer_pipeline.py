@@ -1,105 +1,137 @@
 """
-Run full transformer (MAE) augmentation pipeline:
-  Ensure baseline features -> Train MAE (if needed) -> Build augmented features -> Run 6-model comparison.
-Results: results/augmentation/transformer/
+Transformer (MAE) Augmentation Pipeline
+Orchestrates both generation and training stages
+Can run both sequentially or run stages independently
 """
 
 import sys
 from pathlib import Path
 
+# Add paths
 script_dir = Path(__file__).resolve().parent
 base_dir = script_dir.parent.parent
 sys.path.insert(0, str(base_dir))
 
-from baseline.extract_baseline_features import main as baseline_extract_main
-from augmentation.transformer.train_mae import train_mae
-from augmentation.transformer.build_transformer_augmented_features import build_transformer_augmented_features
-from comparison.compare_models import compare_all_models
+from augmentation.transformer.generate_transformer_augmented_data import generate_transformer_augmented_data
+from augmentation.transformer.train_transformer_models import train_transformer_models
 
 
 def run_transformer_pipeline(
+    stage='both',
     mae_epochs=30,
     epochs=100,
     batch_size=32,
+    num_generated_per_class=50,
     skip_existing=False,
     force=False,
 ):
-    data_dir = base_dir / "data"
-    baseline_npz = data_dir / "baseline_features.npz"
-    mae_weights_dir = base_dir / "results" / "augmentation" / "transformer" / "mae_weights"
-    mae_weights = mae_weights_dir / "mae_weights.keras"
-    transformer_npz = data_dir / "transformer_augmented_features.npz"
-    results_base = base_dir / "results" / "augmentation" / "transformer"
+    """
+    Run Transformer augmentation pipeline
+    
+    Args:
+        stage: 'generation', 'training', or 'both' (default)
+        mae_epochs: Number of MAE training epochs
+        epochs: Number of model training epochs
+        batch_size: Batch size
+        num_generated_per_class: Number of synthetic samples per class
+        skip_existing: Skip already-trained models
+        force: Force regenerate/retrain
+    """
 
-    data_dir.mkdir(parents=True, exist_ok=True)
-    results_base.mkdir(parents=True, exist_ok=True)
+    if stage in ('generation', 'both'):
+        print("\n" + "=" * 80)
+        print("GENERATION STAGE: Transformer (MAE) Augmentation")
+        print("=" * 80)
+        
+        data_dir = base_dir / "data" / "transformer_augmented_features.npz"
+        if data_dir.exists() and not force:
+            print(f"\nAugmented features already exist")
+            print("Use --force to regenerate")
+        else:
+            generate_transformer_augmented_data(
+                mae_epochs=mae_epochs,
+                batch_size=batch_size,
+                num_generated_per_class=num_generated_per_class,
+                random_seed=42,
+            )
 
-    print("=" * 80)
-    print("TRANSFORMER (MAE) AUGMENTATION PIPELINE")
-    print("=" * 80)
-
-    if not baseline_npz.exists():
-        print("\n[STEP 0] Baseline features not found. Extracting baseline...")
-        import os
-        orig = os.getcwd()
-        try:
-            os.chdir(base_dir / "baseline")
-            baseline_extract_main()
-        finally:
-            os.chdir(orig)
-        print("Baseline features ready.")
-    else:
-        print("\n[STEP 0] Baseline features found.")
-
-    if not mae_weights.exists():
-        print("\n[STEP 1/3] Training MAE...")
-        train_mae(base_dir, str(mae_weights_dir), epochs=mae_epochs, batch_size=batch_size)
-    else:
-        print("\n[STEP 1/3] MAE weights found. Skipping MAE training.")
-
-    if not transformer_npz.exists() or force:
-        print("\n[STEP 2/3] Building transformer-augmented features...")
-        build_transformer_augmented_features(
-            base_dir=base_dir,
-            output_path=str(transformer_npz),
-            mae_weights_path=str(mae_weights),
-            num_generated_per_class=50,
+    if stage in ('training', 'both'):
+        print("\n" + "=" * 80)
+        print("TRAINING STAGE: Transformer (MAE) Augmentation Model Comparison")
+        print("=" * 80)
+        
+        train_transformer_models(
+            epochs=epochs,
+            batch_size=batch_size,
+            skip_existing=skip_existing,
+            force=force,
         )
-    else:
-        print("\n[STEP 2/3] Using existing transformer-augmented features.")
-
-    print("\n[STEP 3/3] Training and comparing all models...")
-    compare_all_models(
-        data_path=str(transformer_npz),
-        results_base_dir=str(results_base),
-        epochs=epochs,
-        batch_size=batch_size,
-        random_seed=42,
-        skip_existing=skip_existing,
-        force_retrain=force,
-    )
 
     print("\n" + "=" * 80)
     print("TRANSFORMER PIPELINE COMPLETE")
     print("=" * 80)
-    print(f"Results: {results_base}")
-    print(f"  Per-model: .../cnn/, lstm/, cnn_lstm/, resnet/, transformer/, svm/")
-    print(f"  Comparison: {results_base}/comparison/")
 
 
-if __name__ == "__main__":
+def main():
+    """Command-line entry point"""
     import argparse
-    p = argparse.ArgumentParser()
-    p.add_argument("--mae_epochs", type=int, default=30)
-    p.add_argument("--epochs", type=int, default=100)
-    p.add_argument("--batch_size", type=int, default=32)
-    p.add_argument("--skip_existing", action="store_true")
-    p.add_argument("--force", action="store_true")
-    args = p.parse_args()
+    
+    parser = argparse.ArgumentParser(
+        description='Transformer (MAE) Augmentation Pipeline (Generation + Training)'
+    )
+    parser.add_argument(
+        '--stage',
+        choices=['generation', 'training', 'both'],
+        default='both',
+        help='Which stage to run (default: both)'
+    )
+    parser.add_argument(
+        '--mae_epochs',
+        type=int,
+        default=30,
+        help='Number of MAE training epochs'
+    )
+    parser.add_argument(
+        '--epochs',
+        type=int,
+        default=100,
+        help='Number of model training epochs'
+    )
+    parser.add_argument(
+        '--batch_size',
+        type=int,
+        default=32,
+        help='Batch size'
+    )
+    parser.add_argument(
+        '--num_generated_per_class',
+        type=int,
+        default=50,
+        help='Number of synthetic samples per class'
+    )
+    parser.add_argument(
+        '--skip_existing',
+        action='store_true',
+        help='Skip already-trained models'
+    )
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Force regenerate/retrain'
+    )
+    
+    args = parser.parse_args()
+    
     run_transformer_pipeline(
+        stage=args.stage,
         mae_epochs=args.mae_epochs,
         epochs=args.epochs,
         batch_size=args.batch_size,
+        num_generated_per_class=args.num_generated_per_class,
         skip_existing=args.skip_existing,
         force=args.force,
     )
+
+
+if __name__ == '__main__':
+    main()
