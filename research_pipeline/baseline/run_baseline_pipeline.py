@@ -49,7 +49,7 @@ def run_baseline_pipeline(data_dir='../../Dataset/my Dataset',
     finally:
         os.chdir(original_dir)
     
-    print(f"\n✓ Feature extraction complete")
+    print(f"\n[OK] Feature extraction complete")
     print(f"  Features saved to: {feature_path}")
     print(f"  Total samples: {analysis['total_samples']}")
     print(f"  Emotion classes: {analysis['num_classes']}")
@@ -67,7 +67,7 @@ def run_baseline_pipeline(data_dir='../../Dataset/my Dataset',
         random_seed=random_seed
     )
     
-    print(f"\n✓ Model training complete")
+    print(f"\n[OK] Model training complete")
     print(f"  Test Accuracy: {results['metrics']['overall']['accuracy']:.4f}")
     print(f"  Macro F1-Score: {results['metrics']['overall']['macro_f1']:.4f}")
     

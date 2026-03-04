@@ -26,13 +26,13 @@ try:
                 # Enable memory growth to avoid allocating all GPU memory at once
                 for gpu in gpus:
                     tf.config.experimental.set_memory_growth(gpu, True)
-                print(f"✓ GPU detected: {len(gpus)} GPU(s) available")
-                print(f"  Using GPU: {gpus[0].name}")
+                print(f"[GPU] {len(gpus)} GPU(s) available")
+                print(f"[GPU] Using GPU: {gpus[0].name}")
             except RuntimeError as e:
-                print(f"GPU configuration error: {e}")
+                print(f"[GPU ERROR] {e}")
         else:
-            print("⚠ No GPU detected. Training will use CPU (slower).")
-            print("  To use GPU, ensure CUDA and cuDNN are installed.")
+            print("[CPU] No GPU detected. Training will use CPU (slower).")
+            print("[CPU] To use GPU, ensure CUDA and cuDNN are installed.")
         _GPU_CONFIGURED = True
     
     TF_AVAILABLE = True

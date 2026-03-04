@@ -65,14 +65,14 @@ def generate_transformer_augmented_data(
             baseline_extract_main()
         finally:
             os.chdir(orig)
-        print("✓ Baseline features extracted")
+        print("[OK] Baseline features extracted")
     else:
-        print(f"✓ Baseline features found: {baseline_npz}")
+        print(f"[OK] Baseline features found: {baseline_npz}")
 
     # Step 2: Train MAE (unless weights exist)
     print("\n[2/3] Training Masked Autoencoder (MAE)...")
     if mae_weights.exists():
-        print(f"✓ MAE weights already exist: {mae_weights}")
+        print(f"[OK] MAE weights already exist: {mae_weights}")
         print("Use --force to retrain MAE")
     else:
         print("Training MAE on baseline training spectrograms...")
@@ -83,12 +83,12 @@ def generate_transformer_augmented_data(
             batch_size=batch_size,
             random_seed=random_seed,
         )
-        print("✓ MAE training complete")
+        print("[OK] MAE training complete")
 
     # Step 3: Generate synthetic spectrograms
     print("\n[3/3] Generating synthetic spectrograms...")
     if transformer_npz.exists():
-        print(f"✓ Augmented features already exist: {transformer_npz}")
+        print(f"[OK] Augmented features already exist: {transformer_npz}")
         print("Use --force to regenerate")
     else:
         build_transformer_augmented_features(
@@ -98,7 +98,7 @@ def generate_transformer_augmented_data(
             num_generated_per_class=num_generated_per_class,
             random_seed=random_seed,
         )
-        print("✓ Synthetic spectrograms generated and combined with training data")
+        print("[OK] Synthetic spectrograms generated and combined with training data")
 
     print("\n" + "=" * 80)
     print("TRANSFORMER GENERATION STAGE COMPLETE")

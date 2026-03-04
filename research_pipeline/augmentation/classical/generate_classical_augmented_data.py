@@ -216,7 +216,7 @@ def generate_classical_augmented_data(
         emotion_map=emotion_map,
     )
 
-    print(f"\n✓ Augmented features saved: {output_path}")
+    print(f"\n[OK] Augmented features saved: {output_path}")
     return output_path
 
 

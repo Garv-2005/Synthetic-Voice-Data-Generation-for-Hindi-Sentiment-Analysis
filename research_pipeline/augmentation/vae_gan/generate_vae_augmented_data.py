@@ -65,14 +65,14 @@ def generate_vae_augmented_data(
             baseline_extract_main()
         finally:
             os.chdir(orig)
-        print("✓ Baseline features extracted")
+        print("[OK] Baseline features extracted")
     else:
-        print(f"✓ Baseline features found: {baseline_npz}")
+        print(f"[OK] Baseline features found: {baseline_npz}")
 
     # Step 2: Train VAE (unless weights exist)
     print("\n[2/3] Training Variational Autoencoder (VAE)...")
     if vae_weights.exists():
-        print(f"✓ VAE weights already exist: {vae_weights}")
+        print(f"[OK] VAE weights already exist: {vae_weights}")
         print("Use --force to retrain VAE")
     else:
         print("Training VAE on baseline training spectrograms...")
@@ -83,12 +83,12 @@ def generate_vae_augmented_data(
             batch_size=batch_size,
             random_seed=random_seed,
         )
-        print("✓ VAE training complete")
+        print("[OK] VAE training complete")
 
     # Step 3: Generate synthetic spectrograms
     print("\n[3/3] Generating synthetic spectrograms...")
     if vae_npz.exists():
-        print(f"✓ Augmented features already exist: {vae_npz}")
+        print(f"[OK] Augmented features already exist: {vae_npz}")
         print("Use --force to regenerate")
     else:
         build_vae_augmented_features(
@@ -98,7 +98,7 @@ def generate_vae_augmented_data(
             num_generated_per_class=num_generated_per_class,
             random_seed=random_seed,
         )
-        print("✓ Synthetic spectrograms generated and combined with training data")
+        print("[OK] Synthetic spectrograms generated and combined with training data")
 
     print("\n" + "=" * 80)
     print("VAE GENERATION STAGE COMPLETE")

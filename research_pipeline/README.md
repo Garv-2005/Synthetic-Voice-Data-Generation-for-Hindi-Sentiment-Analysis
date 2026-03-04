@@ -255,6 +255,41 @@ tqdm>=4.64.0
 joblib>=1.1.0
 ```
 
+## ⚙️ Setup (Fresh Dev Machine)
+
+Follow these steps on a fresh machine to create a virtual environment and install Python dependencies.
+
+- Windows (PowerShell):
+
+```powershell
+cd research_pipeline
+.\install_deps.ps1 -venvName myenv
+```
+
+- macOS / Linux (bash):
+
+```bash
+cd research_pipeline
+./install_deps.sh myenv
+```
+
+Notes:
+- The scripts create a virtual environment, upgrade `pip`, and install packages from `requirements.txt`.
+- GPU drivers, CUDA and cuDNN must be installed manually following NVIDIA's instructions if you need TensorFlow GPU support. See `TENSORFLOW_GPU_CONFIG.md` for guidance.
+
+## ▶️ Quick Test After Setup
+
+After installing dependencies, run the small diagnostics included in `tests/` to verify installation and (if available) GPU accessibility:
+
+```bash
+cd research_pipeline
+python -m pip install -r requirements.txt
+python tests/gpu_diagnostic.py
+python tests/test_augmentation.py
+```
+
+The diagnostic scripts will report TensorFlow version, whether it was built with CUDA support, and run a tiny training job to validate model builds.
+
 ### GPU Support (Optional but Recommended)
 
 For faster training, install CUDA and cuDNN:

@@ -40,16 +40,16 @@ def compare_all_models(data_path, results_base_dir='../results',
         import tensorflow as tf
         gpus = tf.config.experimental.list_physical_devices('GPU')
         if gpus:
-            print(f"\n✓ GPU Available: {len(gpus)} GPU(s) will be used for training")
+            print(f"\n[GPU AVAILABLE] {len(gpus)} GPU(s) will be used for training")
         else:
-            print(f"\n⚠ No GPU detected. Training will use CPU (slower).")
+            print(f"\n[CPU MODE] No GPU detected. Training will use CPU (slower).")
     except:
         pass
     
     if skip_existing and not force_retrain:
-        print(f"\n📋 Resume Mode: Will skip already-trained models")
+        print(f"\n[RESUME MODE] Will skip already-trained models")
     elif force_retrain:
-        print(f"\n🔄 Force Mode: Will retrain all models")
+        print(f"\n[FORCE MODE] Will retrain all models")
     
     # Define all models to train
     models_to_train = [
