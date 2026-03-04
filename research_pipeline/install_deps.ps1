@@ -19,4 +19,8 @@ Start-Process -FilePath $venvPython -ArgumentList '-m','pip','install','-r','req
 
 Write-Host "Installation complete. To activate the virtual environment run:"
 Write-Host "  .\$venvName\Scripts\Activate.ps1"
-Write-Host "If you need GPU support, install NVIDIA drivers, CUDA and cuDNN manually as described in TENSORFLOW_GPU_CONFIG.md"
+Write-Host ""
+Write-Host "GPU Setup Notes:"
+Write-Host "  - For RTX 4500 Ada: Use Python 3.11 + TensorFlow 2.16.1 for best GPU performance"
+Write-Host "  - For development: Current setup works on CPU (slower but functional)"
+Write-Host "  - See GPU_SETUP_ISSUES_AND_WORKAROUNDS.md for detailed instructions"
