@@ -213,23 +213,21 @@ def test_transformer_mae():
     
     try:
         import tensorflow as tf
-        from augmentation.transformer.mae_spectrogram import build_mae_model
+        from augmentation.transformer.mae_spectrogram import build_mae_model, patchify
         
         print("[1/3] Creating dummy spectrograms (32 samples)")
         X = np.random.randn(32, 128, 174).astype(np.float32)
         X = (X - X.min()) / (X.max() - X.min())
         
         print("[2/3] Building MAE model...")
-        model = build_mae_model(
-            input_shape=(128, 174),
-            encoder_depth=2,  # Lightweight for testing
-            decoder_depth=2
-        )
-        model.compile(optimizer=tf.keras.optimizers.Adam(1e-4))
+        model = build_mae_model()
+        model.compile(optimizer=tf.keras.optimizers.Adam(1e-4), loss='mse')
         print("    MAE model built successfully")
         
         print("[3/3] Training for 1 epoch...")
-        history = model.fit(X, X, epochs=1, batch_size=8, verbose=0)
+        # Patch the spectrograms before training
+        X_patches = patchify(X)
+        history = model.fit(X_patches, X_patches, epochs=1, batch_size=8, verbose=0)
         
         print(f"[OK] MAE model working")
         print(f"    Loss: {history.history['loss'][-1]:.6f}")

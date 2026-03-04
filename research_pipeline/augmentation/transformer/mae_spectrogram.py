@@ -89,6 +89,7 @@ class MAESpectrogram(keras.Model):
         self.enc_norm = layers.LayerNormalization(epsilon=1e-6)
         self.dec_layer = layers.MultiHeadAttention(num_heads=num_heads, key_dim=embed_dim // num_heads)
         self.dec_ff = layers.Dense(ff_dim, activation="gelu")
+        self.dec_out = layers.Dense(embed_dim)
         self.dec_head = layers.Dense(patch_dim)
         self.dec_norm = layers.LayerNormalization(epsilon=1e-6)
 
@@ -102,7 +103,7 @@ class MAESpectrogram(keras.Model):
     def decode(self, z):
         attn = self.dec_layer(z, z)
         x = self.dec_norm(z + attn)
-        x = x + self.dec_ff(x)
+        x = x + self.dec_out(self.dec_ff(x))
         return self.dec_head(x)
 
     def call(self, patches, training=False):
